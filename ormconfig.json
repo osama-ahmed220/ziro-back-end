@@ -1,0 +1,28 @@
+[
+  {
+    "name": "default",
+    "type": "mongodb",
+    "host": "ds161804.mlab.com",
+    "port": 61804,
+    "username": "osama",
+    "password": "Osama_6903848",
+    "database": "myprofile",
+    "useNewUrlParser": true,
+    "synchronize": true,
+    "logging": true,
+    "entities": ["./src/entity/*.ts"]
+  },
+  {
+    "name": "production",
+    "type": "mongodb",
+    "host": "ds161804.mlab.com",
+    "port": 61804,
+    "username": "osama",
+    "password": "Osama_6903848",
+    "database": "myprofile",
+    "useNewUrlParser": true,
+    "synchronize": false,
+    "logging": false,
+    "entities": ["./dist/entity/*.js"]
+  }
+]
