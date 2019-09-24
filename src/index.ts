@@ -1,15 +1,15 @@
-import "reflect-metadata";
 import { ApolloServer, Config } from "apollo-server-express";
 import connectRedis from "connect-redis";
+import cors from "cors";
 import Express from "express";
 import session from "express-session";
-import cors from "cors";
 // import { formatArgumentValidationError } from "type-graphql";
 import * as path from "path";
+import "reflect-metadata";
 import {
+  ConnectionOptions,
   createConnection,
-  getConnectionOptions,
-  ConnectionOptions
+  getConnectionOptions
 } from "typeorm";
 import { redis } from "./redis";
 import { createSchema } from "./utils/createSchema";
@@ -35,9 +35,6 @@ const main = async () => {
   const app = Express();
   const RedisStore = connectRedis(session);
   app.use(Express.static("assets"));
-  app.get("/", (_, res) => {
-    res.send("Working");
-  });
   app.use(
     cors({
       credentials: true,
@@ -60,6 +57,9 @@ const main = async () => {
       }
     })
   );
+  app.get("/", (_, res) => {
+    res.send("Working");
+  });
   const port = process.env.PORT || 8080;
   app.use(Express.static(path.join(__dirname, "assets")));
   apolloServer.applyMiddleware({
@@ -68,7 +68,7 @@ const main = async () => {
   });
   app.listen(port, () => {
     console.log(
-      `server is running on post ${port} http://localhost:8080/graphql`
+      `server is running on post ${port} ${process.env.SERVER_URL}/graphql`
     );
   });
 };

@@ -1,34 +1,79 @@
-import { Resolver, ClassType, Mutation, Arg, Query } from "type-graphql";
+import {
+  Arg,
+  ClassType,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware
+} from "type-graphql";
+import { isAuth } from "../middleware/isAuth";
 
-export function createBaseResolver<T extends ClassType, I extends ClassType>(
+export function createBaseResolver<
+  T extends ClassType,
+  I extends ClassType,
+  Update extends ClassType
+>(
   suffix: string,
   returnType: T,
   inputType: I,
+  updateType: Update,
   entity: any
 ) {
   @Resolver({ isAbstract: true })
   abstract class BaseResolver {
+    @UseMiddleware(isAuth)
     @Query(() => [returnType], { name: `getAll${suffix}` })
     async getAll() {
       return entity.find();
     }
 
+    @UseMiddleware(isAuth)
     @Query(() => returnType, { name: `get${suffix}` })
     async get(@Arg("id", () => String) id: string) {
       return entity.findOne(id);
     }
 
+    @UseMiddleware(isAuth)
     @Mutation(() => returnType, { name: `create${suffix}` })
     async create(@Arg("data", () => inputType) data: any) {
       return entity.create(data).save();
     }
 
+    @UseMiddleware(isAuth)
+    @Mutation(() => returnType, { name: `updateBy${suffix}ID` })
+    async updateByID(
+      @Arg("data", () => updateType) data: any,
+      @Arg("id") id: string
+    ) {
+      const entityData = await this.get(id);
+      return this.update(data, entityData);
+    }
+
+    @UseMiddleware(isAuth)
     @Mutation(() => [returnType], { name: `createMulti${suffix}` })
     async createMulti(@Arg("data", () => [inputType]) data: any[]) {
       const insertedData = await data.map(
         async obj => await entity.create(obj).save()
       );
       return insertedData;
+    }
+
+    @UseMiddleware(isAuth)
+    @Mutation(() => Boolean, { name: `deleteBy${suffix}ID` })
+    async deleteByID(@Arg("id", () => String) id: string) {
+      const data = await entity.remove(await this.get(id));
+      if (data) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    async update(data: any, entityData: any) {
+      for (let field in data) {
+        entityData[field] = data[field];
+      }
+      return entity.save(entityData);
     }
 
     async getManyByPropertyID<R>(

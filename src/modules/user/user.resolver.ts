@@ -1,30 +1,35 @@
-import { Resolver, FieldResolver, Root, Mutation, Arg, Ctx, Query } from "type-graphql";
-import bcrypt from 'bcrypt';
-import { createBaseResolver } from "../shared/createBaseResolver";
-import { User } from "../../entity/User";
+import bcrypt from "bcryptjs";
 import {
-  CreateUserInput
-} from "./Inputs";
-import { createConfirmationUrl } from "../../utils/createConfirmationUrl";
-import { sendEmail } from "../../utils/sendMail";
-import { MyContext } from "../../types/MyContext";
+  Arg,
+  Ctx,
+  Mutation,
+  Query,
+  Resolver
+} from "type-graphql";
+import { User } from "../../entity/User";
 import { redis } from "../../redis";
-import { confirmUserPrefix } from "../constants/redisPrefixes";
+import { MyContext } from "../../types/MyContext";
+import { createConfirmationUrl } from "../../utils/createConfirmationUrl";
+import {
+  confirmUserPrefix
+} from "../constants/redisPrefixes";
+import { createBaseResolver } from "../shared/createBaseResolver";
+import {
+  CreateUserInput,
+  UpdateUserInput
+} from "./Inputs";
+import { sendEmail } from "../../utils/sendMail";
 
 const BaseResolver = createBaseResolver(
   "User",
   User,
   CreateUserInput,
+  UpdateUserInput,
   User
 );
 
 @Resolver(User)
 export class UserResolver extends BaseResolver {
-  @FieldResolver()
-  name(@Root() { firstName, lastName }: User): string {
-    return `${firstName} ${lastName}`;
-  }
-
   @Mutation(() => User, { name: `register` })
   async register(@Arg("data", () => CreateUserInput) data: CreateUserInput) {
     const hashedPassword = await bcrypt.hash(data.password, 12);

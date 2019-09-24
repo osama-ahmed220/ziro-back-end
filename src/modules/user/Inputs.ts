@@ -1,24 +1,22 @@
-import { InputType, Field } from "type-graphql";
-import { IsNotEmpty } from "class-validator";
-import { IsUnique } from "../shared/uniqueValidation";
-import { User } from "../../entity/User";
+import { Field, InputType } from "type-graphql";
 
 @InputType()
-export class CreateUserInput {
-  @Field(() => String)
-  @IsNotEmpty()
+class BaseInput {
+  @Field()
   firstName: string;
 
-  @Field(() => String)
-  @IsNotEmpty()
+  @Field()
   lastName: string;
 
-  @Field(() => String)
-  @IsNotEmpty()
-  @IsUnique(User)
+  @Field()
   email: string;
 
-  @Field(() => String)
-  @IsNotEmpty()
+  @Field()
   password: string;
 }
+
+@InputType()
+export class CreateUserInput extends BaseInput {}
+
+@InputType()
+export class UpdateUserInput extends BaseInput {}

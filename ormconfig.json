@@ -10,6 +10,7 @@
     "useNewUrlParser": true,
     "synchronize": true,
     "logging": true,
+    "useUnifiedTopology": true,
     "entities": ["./src/entity/*.ts"]
   },
   {
@@ -23,6 +24,7 @@
     "useNewUrlParser": true,
     "synchronize": false,
     "logging": false,
+    "useUnifiedTopology": true,
     "entities": ["./dist/entity/*.js"]
   }
 ]
